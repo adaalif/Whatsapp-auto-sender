@@ -129,7 +129,7 @@ class ExcelReaderApp:
             message = template
             for key, value in row_data.items():
                 message = message.replace(f"[{key}]", str(value))
-            phone_number = row_data.get('No_HP', '')
+            phone_number = row_data.get('No_Hp', '')
             if message and phone_number:
                 try:
                     self.whatsapp_sender.send_message(phone_number, message)
