@@ -6,12 +6,18 @@ import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import os
 
 class MessageSender:
     def __init__(self):
-        self.driver_path = r"C:\chromedriver-win64\chromedriver.exe"
-        self.user_data_dir = r'C:\chromedriver-win64\profile'
+        base_dir = os.path.abspath("chromedriver-win64")  # Adjust the base directory as needed
+        self.driver_path = os.path.join(base_dir, "chromedriver.exe")
+        self.user_data_dir = os.path.join(base_dir, "profile")
         self.driver = None
+
+        # Ensure the profile directory exists
+        if not os.path.exists(self.user_data_dir):
+            os.makedirs(self.user_data_dir)
 
     def setup_driver(self):
         chrome_options = Options()
