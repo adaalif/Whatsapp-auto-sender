@@ -39,11 +39,14 @@ class ExcelReaderApp:
        
         self.file_path_var = tk.StringVar()
         self.label = ttk.Label(self.frame, text="Pilih file Excel:")
-        self.label.grid(row=0, column=0, padx=5, pady=5, sticky=tk.W)
+        # Minimize padding around the label
+        self.label.grid(row=0, column=0, padx=10, pady=1, sticky=tk.W)
         self.entry = ttk.Entry(self.frame, textvariable=self.file_path_var, width=40)
-        self.entry.grid(row=0, column=1, padx=5, pady=5, columnspan=2)  # Gabungkan kolom 1 dan 2 untuk entry
+        # Minimize padding around the entry, maintain column span
+        self.entry.grid(row=0, column=0, padx=80, pady=1, columnspan=2)
         self.browse_button = ttk.Button(self.frame, text="Browser", command=self.browse_file)
-        self.browse_button.grid(row=0, column=3, padx=0, pady=5, sticky=tk.W)  # Geser tombol browser ke kolom 3
+        # Minimize padding around the browse button, align to the west
+        self.browse_button.grid(row=0, column=2, padx=0, pady=1, sticky=tk.W)
 
         
         # self.read_button = ttk.Button(self.frame, text="Read Columns", command=self.read_columns)
@@ -71,13 +74,13 @@ class ExcelReaderApp:
         self.phone_column_label = ttk.Label(self.frame, text="kolom nomor handphone:")
         self.phone_column_label.grid(row=3, column=0, padx=5, pady=5, sticky=tk.W)
         self.phone_column_var = tk.StringVar()
-        self.phone_column_entry = ttk.Entry(self.frame, textvariable=self.phone_column_var, width=40)
+        self.phone_column_entry = ttk.Entry(self.frame, textvariable=self.phone_column_var, width=30)
         self.phone_column_entry.grid(row=3, column=1, padx=5, pady=5)
         
         self.view_message_button1 = ttk.Button(self.frame, text="View Message from Template 1", command=lambda: self.view_message(1))
-        self.view_message_button1.grid(row=4, column=2, pady=10)
+        self.view_message_button1.grid(row=3, column=2, pady=10)
         self.view_message_button2 = ttk.Button(self.frame, text="View Message from Template 2", command=lambda: self.view_message(2))
-        self.view_message_button2.grid(row=4, column=3, pady=10)
+        self.view_message_button2.grid(row=3, column=3, pady=10)
         self.send_button = ttk.Button(self.frame, text="Kirim", command=self.send_message)
         self.send_button.grid(row=5, column=0, columnspan=4, pady=10)
         
