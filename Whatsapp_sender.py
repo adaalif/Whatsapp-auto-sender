@@ -32,7 +32,7 @@ class MessageSender:
         self.driver.get(url)
         try:
             # Wait for the input box to be ready
-            input_box = WebDriverWait(self.driver, 20).until(
+            input_box = WebDriverWait(self.driver, 90).until(
                 EC.presence_of_element_located((By.XPATH, '//div[@contenteditable="true"][@data-tab="10"]'))
             )
             # Split the message by newlines and send each part with Shift+Enter except the last part
