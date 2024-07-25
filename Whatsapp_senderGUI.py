@@ -87,17 +87,24 @@ class ExcelReaderApp:
         self.message_text.grid(row=7, column=0, columnspan=4, padx=5, pady=5, sticky=tk.NSEW)
 
         # Input range of rows
+        self.all_rows_var = tk.BooleanVar()
+        self.all_rows_check = ttk.Checkbutton(self.frame, text="All Rows", variable=self.all_rows_var, command=self.toggle_row_inputs)
+        self.all_rows_check.grid(row=8, column=0, padx=5, pady=5, sticky=tk.W)
+
         self.start_row_label = ttk.Label(self.frame, text="Start Row:")
-        self.start_row_label.grid(row=8, column=0, padx=5, pady=5, sticky=tk.W)
+        self.start_row_label.grid(row=9, column=0, padx=5, pady=5, sticky=tk.W)
         self.start_row_var = tk.StringVar()
         self.start_row_entry = ttk.Entry(self.frame, textvariable=self.start_row_var, width=20)
-        self.start_row_entry.grid(row=8, column=1, padx=5, pady=5)
+        self.start_row_entry.grid(row=9, column=1, padx=5, pady=5)
         
         self.end_row_label = ttk.Label(self.frame, text="End Row:")
-        self.end_row_label.grid(row=8, column=2, padx=5, pady=5, sticky=tk.W)
+        self.end_row_label.grid(row=9, column=2, padx=5, pady=5, sticky=tk.W)
         self.end_row_var = tk.StringVar()
         self.end_row_entry = ttk.Entry(self.frame, textvariable=self.end_row_var, width=20)
-        self.end_row_entry.grid(row=8, column=3, padx=5, pady=5)
+        self.end_row_entry.grid(row=9, column=3, padx=5, pady=5)
+
+        # Call toggle_row_inputs initially to set the correct state
+        self.toggle_row_inputs()
 
         # Tutorial section
         self.tutorial_label = ttk.Label(self.frame, text="Tutorial Template Pesan:")
@@ -115,6 +122,14 @@ class ExcelReaderApp:
 
     # Mengatur agar text widget tidak bisa diedit
         self.tutorial_text.configure(state=tk.DISABLED)
+
+    def toggle_row_inputs(self):
+        if self.all_rows_var.get():
+            self.start_row_entry.configure(state=tk.DISABLED)
+            self.end_row_entry.configure(state=tk.DISABLED)
+        else:
+            self.start_row_entry.configure(state=tk.NORMAL)
+            self.end_row_entry.configure(state=tk.NORMAL)
 
     def browse_file(self):
         file_path = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx *.xls")])
@@ -196,8 +211,12 @@ class ExcelReaderApp:
             messagebox.showwarning("Warning", "Please enter the column name for phone numbers!")
             return
         try:
-            start_row = int(self.start_row_var.get().strip()) - 1
-            end_row = int(self.end_row_var.get().strip()) - 1
+            if self.all_rows_var.get():
+                start_row = 0
+                end_row = len(self.data) - 1
+            else:
+                start_row = int(self.start_row_var.get().strip()) - 1 if self.start_row_var.get().strip() else 0
+                end_row = int(self.end_row_var.get().strip()) - 1 if self.end_row_var.get().strip() else len(self.data) - 1
         except ValueError:
             messagebox.showerror("Error", "Invalid row range! Please enter valid numbers.")
             return
