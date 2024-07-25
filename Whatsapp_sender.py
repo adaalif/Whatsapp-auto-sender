@@ -20,14 +20,28 @@ class MessageSender:
             os.makedirs(self.user_data_dir)
 
     def setup_driver(self):
+        """Setup the ChromeDriver with user profile."""
         chrome_options = Options()
         chrome_options.add_argument(f"user-data-dir={self.user_data_dir}")
         service = Service(self.driver_path)
         self.driver = webdriver.Chrome(service=service, options=chrome_options)
 
-    def send_message(self, phone_number, message):
-        if not self.driver:
+    def is_browser_active(self):
+        """Check if the browser session is still active."""
+        try:
+            # Try accessing a simple property to check if the browser is still responsive
+            self.driver.title
+            return True
+        except:
+            return False
+
+    def ensure_browser_is_open(self):
+        """Ensure the browser is open and ready."""
+        if self.driver is None or not self.is_browser_active():
             self.setup_driver()
+
+    def send_message(self, phone_number, message):
+        self.ensure_browser_is_open()
         url = f'https://web.whatsapp.com/send?phone={phone_number}'
         self.driver.get(url)
         try:
