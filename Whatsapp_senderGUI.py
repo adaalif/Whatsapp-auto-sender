@@ -86,7 +86,20 @@ class ExcelReaderApp:
         self.message_text = tk.Text(self.frame, width=80, height=10, font=('Helvetica', 10), wrap=tk.WORD)
         self.message_text.grid(row=7, column=0, columnspan=4, padx=5, pady=5, sticky=tk.NSEW)
 
-            # Tutorial section
+        # Input range of rows
+        self.start_row_label = ttk.Label(self.frame, text="Start Row:")
+        self.start_row_label.grid(row=8, column=0, padx=5, pady=5, sticky=tk.W)
+        self.start_row_var = tk.StringVar()
+        self.start_row_entry = ttk.Entry(self.frame, textvariable=self.start_row_var, width=20)
+        self.start_row_entry.grid(row=8, column=1, padx=5, pady=5)
+        
+        self.end_row_label = ttk.Label(self.frame, text="End Row:")
+        self.end_row_label.grid(row=8, column=2, padx=5, pady=5, sticky=tk.W)
+        self.end_row_var = tk.StringVar()
+        self.end_row_entry = ttk.Entry(self.frame, textvariable=self.end_row_var, width=20)
+        self.end_row_entry.grid(row=8, column=3, padx=5, pady=5)
+
+        # Tutorial section
         self.tutorial_label = ttk.Label(self.frame, text="Tutorial Template Pesan:")
         self.tutorial_label.grid(row=1, column=4, padx=5, pady=5, sticky=tk.W)
         self.tutorial_text = tk.Text(self.frame, width=40, font=('Helvetica', 10), wrap=tk.WORD)
@@ -102,7 +115,6 @@ class ExcelReaderApp:
 
     # Mengatur agar text widget tidak bisa diedit
         self.tutorial_text.configure(state=tk.DISABLED)
-
 
     def browse_file(self):
         file_path = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx *.xls")])
@@ -157,8 +169,20 @@ class ExcelReaderApp:
         if not phone_column:
             messagebox.showwarning("Warning", "Please enter the column name for phone numbers!")
             return
+        try:
+            start_row = int(self.start_row_var.get().strip()) - 1
+            end_row = int(self.end_row_var.get().strip()) - 1
+        except ValueError:
+            messagebox.showerror("Error", "Invalid row range! Please enter valid numbers.")
+            return
+
+        if start_row < 0 or end_row >= len(self.data) or start_row > end_row:
+            messagebox.showerror("Error", "Invalid row range! Please enter a valid range within the data.")
+            return
+
         template_switch = 0
-        for row_data in self.data:
+        for index in range(start_row, end_row + 1):
+            row_data = self.data[index]
             if template_switch % 2 == 0:
                 template = self.template1_text.get("1.0", tk.END).strip()
             else:
@@ -178,6 +202,7 @@ class ExcelReaderApp:
                 continue
             template_switch += 1
         messagebox.showinfo("Success", "All messages sent successfully!")
+
 if __name__ == "__main__":
     root = tk.Tk()
     app = ExcelReaderApp(root)
