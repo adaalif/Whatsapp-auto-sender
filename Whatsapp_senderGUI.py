@@ -39,14 +39,11 @@ class ExcelReaderApp:
        
         self.file_path_var = tk.StringVar()
         self.label = ttk.Label(self.frame, text="Pilih file Excel:")
-        # Minimize padding around the label
-        self.label.grid(row=0, column=0, padx=10, pady=1, sticky=tk.W)
+        self.label.grid(row=0, column=0, padx=5, pady=5, sticky=tk.W)
         self.entry = ttk.Entry(self.frame, textvariable=self.file_path_var, width=40)
-        # Minimize padding around the entry, maintain column span
-        self.entry.grid(row=0, column=0, padx=80, pady=1, columnspan=2)
+        self.entry.grid(row=0, column=0, padx=5, pady=5, columnspan=2)  # Gabungkan kolom 1 dan 2 untuk entry
         self.browse_button = ttk.Button(self.frame, text="Browser", command=self.browse_file)
-        # Minimize padding around the browse button, align to the west
-        self.browse_button.grid(row=0, column=2, padx=0, pady=1, sticky=tk.W)
+        self.browse_button.grid(row=0, column=2, padx=0, pady=5, sticky=tk.W)  # Geser tombol browser ke kolom 3
 
         
         # self.read_button = ttk.Button(self.frame, text="Read Columns", command=self.read_columns)
@@ -71,16 +68,16 @@ class ExcelReaderApp:
         self.template2_text = tk.Text(self.frame, width=40, height=10, font=('Helvetica', 10), wrap=tk.WORD)
         self.template2_text.grid(row=2, column=3, padx=5, pady=5, sticky=tk.NSEW)
         
-        self.phone_column_label = ttk.Label(self.frame, text="kolom nomor handphone:")
+        self.phone_column_label = ttk.Label(self.frame, text="Kolom nomor handphone:")
         self.phone_column_label.grid(row=3, column=0, padx=5, pady=5, sticky=tk.W)
         self.phone_column_var = tk.StringVar()
-        self.phone_column_entry = ttk.Entry(self.frame, textvariable=self.phone_column_var, width=30)
-        self.phone_column_entry.grid(row=3, column=1, padx=5, pady=5)
+        self.phone_column_combobox = ttk.Combobox(self.frame, textvariable=self.phone_column_var, state="readonly")
+        self.phone_column_combobox.grid(row=3, column=1, padx=5, pady=5)
         
         self.view_message_button1 = ttk.Button(self.frame, text="View Message from Template 1", command=lambda: self.view_message(1))
-        self.view_message_button1.grid(row=3, column=2, pady=10)
+        self.view_message_button1.grid(row=4, column=2, pady=10)
         self.view_message_button2 = ttk.Button(self.frame, text="View Message from Template 2", command=lambda: self.view_message(2))
-        self.view_message_button2.grid(row=3, column=3, pady=10)
+        self.view_message_button2.grid(row=4, column=3, pady=10)
         self.send_button = ttk.Button(self.frame, text="Kirim", command=self.send_message)
         self.send_button.grid(row=5, column=0, columnspan=4, pady=10)
         
@@ -88,6 +85,26 @@ class ExcelReaderApp:
         self.message_label.grid(row=6, column=0, padx=5, pady=5, sticky=tk.W)
         self.message_text = tk.Text(self.frame, width=80, height=10, font=('Helvetica', 10), wrap=tk.WORD)
         self.message_text.grid(row=7, column=0, columnspan=4, padx=5, pady=5, sticky=tk.NSEW)
+
+        # Input range of rows
+        self.all_rows_var = tk.BooleanVar()
+        self.all_rows_check = ttk.Checkbutton(self.frame, text="All Rows", variable=self.all_rows_var, command=self.toggle_row_inputs)
+        self.all_rows_check.grid(row=8, column=0, padx=5, pady=5, sticky=tk.W)
+
+        self.start_row_label = ttk.Label(self.frame, text="Start Row:")
+        self.start_row_label.grid(row=9, column=0, padx=5, pady=5, sticky=tk.W)
+        self.start_row_var = tk.StringVar()
+        self.start_row_entry = ttk.Entry(self.frame, textvariable=self.start_row_var, width=20)
+        self.start_row_entry.grid(row=9, column=1, padx=5, pady=5)
+        
+        self.end_row_label = ttk.Label(self.frame, text="End Row:")
+        self.end_row_label.grid(row=9, column=2, padx=5, pady=5, sticky=tk.W)
+        self.end_row_var = tk.StringVar()
+        self.end_row_entry = ttk.Entry(self.frame, textvariable=self.end_row_var, width=20)
+        self.end_row_entry.grid(row=9, column=3, padx=5, pady=5)
+
+        # Call toggle_row_inputs initially to set the correct state
+        self.toggle_row_inputs()
 
         # Tutorial section
         self.tutorial_label = ttk.Label(self.frame, text="Tutorial Template Pesan:")
@@ -103,20 +120,31 @@ class ExcelReaderApp:
             "4. **Preview dan Kirim**: Gunakan tombol 'View Message' untuk melihat pesan yang dihasilkan dari template, dan tombol 'Kirim' untuk mengirim pesan."
         ))
 
-        # Set the row weights to allow resizing of the rows
-        self.frame.grid_rowconfigure(2, weight=1)  # Ensures that row 2 (where the text widgets are) can expand
-        self.frame.grid_rowconfigure(3, weight=1)  # Ensures that row 3 (where the phone column entry is) can expand
-        self.frame.grid_rowconfigure(4, weight=1)  # Ensures that row 4 (where the buttons are) can expand
-        self.frame.grid_rowconfigure(10, weight=1)  # Ensures that row 5 (where the message area is) can expand
+    # Mengatur agar text widget tidak bisa diedit
+        self.tutorial_text.configure(state=tk.DISABLED)
 
+    def toggle_row_inputs(self):
+        if self.all_rows_var.get():
+            self.start_row_entry.configure(state=tk.DISABLED)
+            self.end_row_entry.configure(state=tk.DISABLED)
+        else:
+            self.start_row_entry.configure(state=tk.NORMAL)
+            self.end_row_entry.configure(state=tk.NORMAL)
 
     def browse_file(self):
         file_path = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx *.xls")])
         if file_path:
             self.file_path_var.set(file_path)
-            self.read_columns()
+            # Load the Excel file to find available sheets
+            df = pd.ExcelFile(file_path)
+            sheet_names = df.sheet_names
+            if len(sheet_names) > 1:
+                selected_sheet = self.popup_sheet_selection(sheet_names)
+                self.read_columns(selected_sheet)
+            else:
+                self.read_columns(sheet_names[0])
 
-    def read_columns(self):
+    def read_columns(self, sheet_name):
         file_path = self.file_path_var.get()
         if not file_path:
             messagebox.showwarning("Warning", "Please select a file first!")
@@ -125,24 +153,43 @@ class ExcelReaderApp:
             messagebox.showerror("Error", "File not found!")
             return
         try:
-            excel_data = pd.ExcelFile(file_path)
-            sheet_names = excel_data.sheet_names
+            df = pd.read_excel(file_path, sheet_name=sheet_name)
             self.result_text.delete(1.0, tk.END)
-            self.result_text.insert(tk.END, "Nama-nama kolom dalam setiap tabel di file Excel:\n\n")
-            self.data = []
-            for sheet in sheet_names:
-                df = pd.read_excel(file_path, sheet_name=sheet)
-                self.result_text.insert(tk.END, f"Sheet: {sheet}\n")
-                columns = list(df.columns)
-                for idx, col in enumerate(columns, start=1):
-                    self.result_text.insert(tk.END, f"{idx}. {col}\n")
-                if not df.empty:
-                    self.data.extend(df.fillna('').astype(str).to_dict(orient='records'))
-                self.result_text.insert(tk.END, "\n")
+            self.result_text.insert(tk.END, f"Sheet: {sheet_name}\n")
+            columns = list(df.columns)
+            for idx, col in enumerate(columns, start=1):
+                self.result_text.insert(tk.END, f"{idx}. {col}\n")
+            if not df.empty:
+                self.data = df.fillna('').astype(str).to_dict(orient='records')
             self.current_index = 0
+            # Populate the phone column combobox with column names
+            self.phone_column_combobox['values'] = columns
+            if columns:
+                self.phone_column_combobox.set(columns[0])  # Optionally set the first column as default
         except Exception as e:
-            messagebox.showerror("Error", f"Error reading file: {e}")
+            messagebox.showerror("Error", f"Error reading sheet {sheet_name}: {e}")
+    def popup_sheet_selection(self, sheet_names):
+        popup = tk.Toplevel(self.root)
+        popup.title("Select a Sheet")
+        popup.geometry("300x200")
+        popup.transient(self.root)  # Set to be on top of the main window
+        tk.Label(popup, text="Select a sheet:").pack(pady=10)
 
+        var = tk.StringVar(popup)
+        var.set(sheet_names[0])  # default value
+        dropdown = ttk.Combobox(popup, textvariable=var, values=sheet_names, state="readonly")
+        dropdown.pack()
+
+        def on_select():
+            selected_sheet = var.get()
+            popup.destroy()  # Close the popup after selection
+            return selected_sheet
+
+        select_button = ttk.Button(popup, text="Select", command=on_select)
+        select_button.pack(pady=20)
+
+        popup.wait_window()  # Wait for the popup to close
+        return var.get()  # Return the selected sheet name
     def view_message(self, template_number):
         if not self.data:
             messagebox.showwarning("Warning", "No data available!")
@@ -163,8 +210,24 @@ class ExcelReaderApp:
         if not phone_column:
             messagebox.showwarning("Warning", "Please enter the column name for phone numbers!")
             return
+        try:
+            if self.all_rows_var.get():
+                start_row = 0
+                end_row = len(self.data) - 1
+            else:
+                start_row = int(self.start_row_var.get().strip()) - 1 if self.start_row_var.get().strip() else 0
+                end_row = int(self.end_row_var.get().strip()) - 1 if self.end_row_var.get().strip() else len(self.data) - 1
+        except ValueError:
+            messagebox.showerror("Error", "Invalid row range! Please enter valid numbers.")
+            return
+
+        if start_row < 0 or end_row >= len(self.data) or start_row > end_row:
+            messagebox.showerror("Error", "Invalid row range! Please enter a valid range within the data.")
+            return
+
         template_switch = 0
-        for row_data in self.data:
+        for index in range(start_row, end_row + 1):
+            row_data = self.data[index]
             if template_switch % 2 == 0:
                 template = self.template1_text.get("1.0", tk.END).strip()
             else:
