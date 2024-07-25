@@ -68,11 +68,11 @@ class ExcelReaderApp:
         self.template2_text = tk.Text(self.frame, width=40, height=10, font=('Helvetica', 10), wrap=tk.WORD)
         self.template2_text.grid(row=2, column=3, padx=5, pady=5, sticky=tk.NSEW)
         
-        self.phone_column_label = ttk.Label(self.frame, text="kolom nomor handphone:")
+        self.phone_column_label = ttk.Label(self.frame, text="Kolom nomor handphone:")
         self.phone_column_label.grid(row=3, column=0, padx=5, pady=5, sticky=tk.W)
         self.phone_column_var = tk.StringVar()
-        self.phone_column_entry = ttk.Entry(self.frame, textvariable=self.phone_column_var, width=40)
-        self.phone_column_entry.grid(row=3, column=1, padx=5, pady=5)
+        self.phone_column_combobox = ttk.Combobox(self.frame, textvariable=self.phone_column_var, state="readonly")
+        self.phone_column_combobox.grid(row=3, column=1, padx=5, pady=5)
         
         self.view_message_button1 = ttk.Button(self.frame, text="View Message from Template 1", command=lambda: self.view_message(1))
         self.view_message_button1.grid(row=4, column=2, pady=10)
@@ -108,9 +108,16 @@ class ExcelReaderApp:
         file_path = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx *.xls")])
         if file_path:
             self.file_path_var.set(file_path)
-            self.read_columns()
+            # Load the Excel file to find available sheets
+            df = pd.ExcelFile(file_path)
+            sheet_names = df.sheet_names
+            if len(sheet_names) > 1:
+                selected_sheet = self.popup_sheet_selection(sheet_names)
+                self.read_columns(selected_sheet)
+            else:
+                self.read_columns(sheet_names[0])
 
-    def read_columns(self):
+    def read_columns(self, sheet_name):
         file_path = self.file_path_var.get()
         if not file_path:
             messagebox.showwarning("Warning", "Please select a file first!")
@@ -119,24 +126,43 @@ class ExcelReaderApp:
             messagebox.showerror("Error", "File not found!")
             return
         try:
-            excel_data = pd.ExcelFile(file_path)
-            sheet_names = excel_data.sheet_names
+            df = pd.read_excel(file_path, sheet_name=sheet_name)
             self.result_text.delete(1.0, tk.END)
-            self.result_text.insert(tk.END, "Nama-nama kolom dalam setiap tabel di file Excel:\n\n")
-            self.data = []
-            for sheet in sheet_names:
-                df = pd.read_excel(file_path, sheet_name=sheet)
-                self.result_text.insert(tk.END, f"Sheet: {sheet}\n")
-                columns = list(df.columns)
-                for idx, col in enumerate(columns, start=1):
-                    self.result_text.insert(tk.END, f"{idx}. {col}\n")
-                if not df.empty:
-                    self.data.extend(df.fillna('').astype(str).to_dict(orient='records'))
-                self.result_text.insert(tk.END, "\n")
+            self.result_text.insert(tk.END, f"Sheet: {sheet_name}\n")
+            columns = list(df.columns)
+            for idx, col in enumerate(columns, start=1):
+                self.result_text.insert(tk.END, f"{idx}. {col}\n")
+            if not df.empty:
+                self.data = df.fillna('').astype(str).to_dict(orient='records')
             self.current_index = 0
+            # Populate the phone column combobox with column names
+            self.phone_column_combobox['values'] = columns
+            if columns:
+                self.phone_column_combobox.set(columns[0])  # Optionally set the first column as default
         except Exception as e:
-            messagebox.showerror("Error", f"Error reading file: {e}")
+            messagebox.showerror("Error", f"Error reading sheet {sheet_name}: {e}")
+    def popup_sheet_selection(self, sheet_names):
+        popup = tk.Toplevel(self.root)
+        popup.title("Select a Sheet")
+        popup.geometry("300x200")
+        popup.transient(self.root)  # Set to be on top of the main window
+        tk.Label(popup, text="Select a sheet:").pack(pady=10)
 
+        var = tk.StringVar(popup)
+        var.set(sheet_names[0])  # default value
+        dropdown = ttk.Combobox(popup, textvariable=var, values=sheet_names, state="readonly")
+        dropdown.pack()
+
+        def on_select():
+            selected_sheet = var.get()
+            popup.destroy()  # Close the popup after selection
+            return selected_sheet
+
+        select_button = ttk.Button(popup, text="Select", command=on_select)
+        select_button.pack(pady=20)
+
+        popup.wait_window()  # Wait for the popup to close
+        return var.get()  # Return the selected sheet name
     def view_message(self, template_number):
         if not self.data:
             messagebox.showwarning("Warning", "No data available!")
