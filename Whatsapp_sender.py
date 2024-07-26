@@ -46,7 +46,7 @@ class MessageSender:
         self.driver.get(url)
         try:
             # Wait for the input box to be ready
-            input_box = WebDriverWait(self.driver, 10).until(
+            input_box = WebDriverWait(self.driver, 90).until(
                 EC.presence_of_element_located((By.XPATH, '//div[@contenteditable="true"][@data-tab="10"]'))
             )
             # Split the message by newlines and send each part with Shift+Enter except the last part
@@ -59,14 +59,6 @@ class MessageSender:
             time.sleep(5)
             return True
         except Exception as e:
-            # Check if the error is due to an invalid number
-            try:
-                error_message = self.driver.find_element(By.XPATH, '//div[contains(text(), "phone number shared via url is invalid")]')
-                if error_message:
-                    print(f"Invalid WhatsApp number: {phone_number}")
-                    return False
-            except:
-                pass
             print(f"Failed to send message: {e}")
             return False
 
