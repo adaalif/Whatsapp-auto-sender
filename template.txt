@@ -1,0 +1,10 @@
+No Hp: [NO HP]
+VERSI 1
+Yth.
+Bapak/Ibu Pimpinan
+[nama_perusahaan]
+
+Terima kasih telah menjadi peserta BPJS Ketenagakerjaan, berdasarkan data kami sampai dengan JULI 2024, Bapak/Ibu belum melakukan pembayaran iuran dan denda BPJS Ketenagakerjaan. 
+Kami informasikan jumlah tagihan iuran BPJS Ketenagakerjaan [nama_perusahaan] (NPP : [NPP + UMUR]) periode tagihan s.d periode JULI 2024, sebesar Rp[total_piutang1]
+Bapak Ibu mohon informasinya apakah badan usaha ini masih berjalan, bila sudah tidak ada kegiatan mohon diinformasikan ke kami melalui wa ini untuk dapat kami proses selanjutnya.
+
